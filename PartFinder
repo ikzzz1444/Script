@@ -1,0 +1,159 @@
+local player = game.Players.LocalPlayer
+
+-- GUI elements
+local screenGui = Instance.new("ScreenGui")
+screenGui.Parent = player:WaitForChild("PlayerGui")
+
+local frame = Instance.new("Frame")
+frame.Size = UDim2.new(0, 251, 0, 180) -- Updated frame size
+frame.Position = UDim2.new(0.5, -125.5, 0.5, -90)
+frame.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+frame.BorderSizePixel = 2
+frame.BorderColor3 = Color3.fromRGB(100, 100, 100)
+frame.Parent = screenGui
+frame.AnchorPoint = Vector2.new(0.5, 0.5)
+frame.BackgroundTransparency = 0.1
+frame.ClipsDescendants = true
+
+-- Title Label
+local titleLabel = Instance.new("TextLabel")
+titleLabel.Size = UDim2.new(1, 0, 0, 30)
+titleLabel.Text = "PartDe"
+titleLabel.BackgroundTransparency = 1
+titleLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+titleLabel.TextSize = 16
+titleLabel.Font = Enum.Font.GothamBold
+titleLabel.TextXAlignment = Enum.TextXAlignment.Center
+titleLabel.Parent = frame
+
+-- Part Info Label
+local infoLabel = Instance.new("TextLabel")
+infoLabel.Size = UDim2.new(1, 0, 0, 20)
+infoLabel.Position = UDim2.new(0, 0, 0.2, 0)
+infoLabel.Text = "No part selected"
+infoLabel.BackgroundTransparency = 1
+infoLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+infoLabel.TextSize = 12
+infoLabel.TextXAlignment = Enum.TextXAlignment.Center
+infoLabel.Font = Enum.Font.Gotham
+infoLabel.Parent = frame
+
+-- Child Label
+local childLabel = Instance.new("TextLabel")
+childLabel.Size = UDim2.new(1, 0, 0, 20)
+childLabel.Position = UDim2.new(0, 0, 0.4, 0)
+childLabel.Text = "CHILD: None"
+childLabel.BackgroundTransparency = 1
+childLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+childLabel.TextSize = 12
+childLabel.TextXAlignment = Enum.TextXAlignment.Center
+childLabel.Font = Enum.Font.Gotham
+childLabel.Parent = frame
+
+-- Parent Label
+local parentLabel = Instance.new("TextLabel")
+parentLabel.Size = UDim2.new(1, 0, 0, 20)
+parentLabel.Position = UDim2.new(0, 0, 0.6, 0)
+parentLabel.Text = "PARENT: None"
+parentLabel.BackgroundTransparency = 1
+parentLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
+parentLabel.TextSize = 12
+parentLabel.TextXAlignment = Enum.TextXAlignment.Center
+parentLabel.Font = Enum.Font.Gotham
+parentLabel.Parent = frame
+
+-- Toggle Button
+local toggleButton = Instance.new("TextButton")
+toggleButton.Size = UDim2.new(0, 120, 0, 30)
+toggleButton.Position = UDim2.new(0.5, -60, 0.75, 0)
+toggleButton.Text = "Off"
+toggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+toggleButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+toggleButton.TextSize = 14
+toggleButton.Font = Enum.Font.GothamSemibold
+toggleButton.BorderSizePixel = 0
+toggleButton.Parent = frame
+
+-- Close Button
+local closeButton = Instance.new("TextButton")
+closeButton.Size = UDim2.new(0, 30, 0, 30)
+closeButton.Position = UDim2.new(1, -35, 0, 5)
+closeButton.Text = "X"
+closeButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+closeButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+closeButton.TextSize = 14
+closeButton.Font = Enum.Font.GothamBold
+closeButton.BorderSizePixel = 0
+closeButton.Parent = frame
+
+-- Close the GUI when the close button is clicked
+closeButton.MouseButton1Click:Connect(function()
+    screenGui:Destroy()
+end)
+
+-- Dragging functionality for both PC and mobile
+local dragging = false
+local dragInput, dragStart, startPos
+
+local function startDrag(input)
+    dragging = true
+    dragStart = input.Position
+    startPos = frame.Position
+end
+
+local function updateDrag(input)
+    if dragging then
+        local delta = input.Position - dragStart
+        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+    end
+end
+
+local function stopDrag()
+    dragging = false
+end
+
+-- Enable dragging for PC and mobile
+frame.InputBegan:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        startDrag(input)
+    end
+end)
+
+frame.InputChanged:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+        updateDrag(input)
+    end
+end)
+
+frame.InputEnded:Connect(function(input)
+    if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+        stopDrag()
+    end
+end)
+
+-- Toggle Button Functionality
+local isListening = false
+
+toggleButton.MouseButton1Click:Connect(function()
+    isListening = not isListening
+    toggleButton.Text = isListening and "On" or "Off"
+    toggleButton.BackgroundColor3 = isListening and Color3.fromRGB(0, 255, 0) or Color3.fromRGB(255, 0, 0)
+end)
+
+-- Function to handle mouse clicks
+local function onClick()
+    local mouse = player:GetMouse()
+
+    if isListening then
+        local target = mouse.Target
+
+        if target and target:IsA("Part") then
+            infoLabel.Text = "Part Name: " .. target.Name
+            childLabel.Text = "CHILD: " .. (target:GetChildren()[1] and target:GetChildren()[1].Name or "None")
+            parentLabel.Text = "PARENT: " .. (target.Parent and target.Parent.Name or "None")
+        end
+    end
+end
+
+-- Connect mouse click event
+player:GetMouse().Button1Down:Connect(onClick)
