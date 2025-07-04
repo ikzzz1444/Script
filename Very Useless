@@ -1,0 +1,2 @@
+for _, parts in pairs(GetChildren() do
+parts:Destroy
