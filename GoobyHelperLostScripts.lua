@@ -1,8 +1,6 @@
 -- Gui to Lua
 -- Version: 3.2
 
--- Instances:
-
 local GObby_Helper1 = Instance.new("ScreenGui")
 local Frame = Instance.new("Frame")
 local title = Instance.new("TextLabel")
