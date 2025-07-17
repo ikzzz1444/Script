@@ -1,0 +1,39 @@
+local player = game.Players.LocalPlayer
+local rs = game:GetService("ReplicatedStorage")
+local stylesFolder = rs:WaitForChild("LightsaberModules"):WaitForChild("Styles")
+local setStyle = rs:WaitForChild("LightsaberRemotes"):WaitForChild("SetStyle")
+local unequip = rs.LightsaberRemotes:FindFirstChild("Unequip")
+local equip = rs.LightsaberRemotes:FindFirstChild("Equip")
+local lightsaberRemotes = rs:WaitForChild("LightsaberRemotes")
+local players = game:GetService("Players")
+
+local Library = loadstring(Game:HttpGet("https://raw.githubusercontent.com/bloodball/-back-ups-for-libs/main/wizard"))()
+ 
+local Window = Library:NewWindow("Window")
+ 
+local Section = Window:NewSection("SectionName")
+
+local godModeActive = false
+Section:CreateToggle("GodMode", function(value)
+godModeActive = value
+spawn(function()
+        while true do
+            if godModeActive then
+                lightsaberRemotes:WaitForChild("MouseDown"):FireServer()
+                lightsaberRemotes:WaitForChild("Attack"):FireServer(3, 1, false, false)
+                lightsaberRemotes:WaitForChild("MouseUp"):FireServer()
+                lightsaberRemotes:WaitForChild("Swing"):FireServer()
+                for _, p in pairs(players:GetPlayers()) do
+                    local char = p.Character
+                    if char and char:FindFirstChild("Humanoid") then
+                        lightsaberRemotes:WaitForChild("OnHit"):FireServer(char)
+                    end
+                end
+                lightsaberRemotes:WaitForChild("FinishSwingNoBounce"):FireServer()
+                lightsaberRemotes:WaitForChild("ResetSwingDirection"):FireServer()
+            end
+            wait(0.1)
+        end
+    end)
+end)
+
